@@ -17,7 +17,6 @@ model = cBCM(	n_filters = 8, kernel_size = 5,
 				num_epochs= 10, batch_size = 1000, activation = 'relu',
 				optimizer = SGD(lr=4e-2), weights_init = Normal(), interaction_strength = 0.,
 				random_state = 42, verbose = True)
-
 model.fit()
 print("OH YES I CANT BELIEVE IT")
 
