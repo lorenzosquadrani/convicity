@@ -55,3 +55,29 @@ class cBCM (BCM):
 
 
 
+if __name__ == '__main__':
+
+    from plasticity.model.optimizer import SGD
+    from plasticity.model.weights import Normal
+    from plasticity.utils import view_weights
+    from sklearn.datasets import fetch_openml
+
+    #Download the MNIST dataset
+    print("Downloading the dataset...")
+    X, y = fetch_openml(name='mnist_784', version=1, data_id=None, return_X_y=True)
+
+    # normalize the sample into [0, 1]
+    X *= 1. / 255
+
+    model = cBCM(	n_filters = 8, kernel_size = 5,
+				    num_epochs= 10, batch_size = 1000, activation = 'relu',
+				    optimizer = SGD(lr=4e-2), weights_init = Normal(), interaction_strength = 0.,
+				    random_state = 42, verbose = True)
+
+    print("Starting training...")
+    model.fit(np.array(X).reshape(-1,28,28))
+
+    view_weights(model.weights, (5,5))
+
+
+
