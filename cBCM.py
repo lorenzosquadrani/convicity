@@ -50,7 +50,6 @@ class cBCM (BCM):
 		
 		subs = np.lib.stride_tricks.as_strided(X, view_shape, strides=view_stride)
 
-		print(subs.shape)
 		super(cBCM, self).fit(subs.reshape(N*(W-K+1)*(W-K+1), K*K))
 
 
