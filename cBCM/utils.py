@@ -1,6 +1,8 @@
+import matplotlib.pyplot as plt
+
 def view_weights(model, rows, cols, figsize = None, save = False, path = None):
     
-    if model.n_filters < n_rows*n_cols:
+    if model.n_filters < rows*cols:
         print("Invalid combination of rows and columns!")
         return 0
     if save and (path is None):
