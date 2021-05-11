@@ -7,15 +7,16 @@ __email__ = ['lorenzo.squadrani@studio.unibo.it']
 
 class cBCM (BCM):
     
-    def __init__ (self, n_filters, kernel_size,
+    def __init__ (self, in_channels, out_channels, kernel_size,
 						num_epochs, batch_size, activation,
 						optimizer, weights_init, interaction_strength = 0.,
 						precision = 1e-30, random_state = 42, verbose = False):
 
-        self.n_filters = n_filters
+        self.out_channels = out_channels
+        self.in_channels = in_channels
         self.kernel_size = kernel_size
         
-        outputs = n_filters
+        outputs = out_channels
 
         super(cBCM, self).__init__(	outputs=outputs, num_epochs=num_epochs, 
 									batch_size=batch_size, activation=activation,
@@ -33,14 +34,17 @@ class cBCM (BCM):
             
         
         np.random.seed(self.random_state)
+
+        if len(X.shape)==3:
+            X = np.expand_dims(X, axis = 1)
         
-        N,W,H = X.shape
-        SN,SW,SH = X.strides
+        N,C,W,H= X.shape
+        SN,SC,SW,SH = X.strides
         
         K = self.kernel_size
         
-        view_shape = (N, W-K+1, H-K+1, K,K)
-        view_stride = (SN, SW, SH, SW , SH)
+        view_shape = (N, W-K+1, H-K+1, C, K, K)
+        view_stride = (SN, SW, SH, SC, SW , SH)
         
     	# Se la batch è X=(N,W,H), il kernel è (K1,K2), lo stride è 1
     	# La shape dei sottosample dev'essere (num_samples, W-K1+1, H-K2+1, K, K)
@@ -51,7 +55,7 @@ class cBCM (BCM):
 		
         subs = np.lib.stride_tricks.as_strided(X, view_shape, strides=view_stride)
         
-        super(cBCM, self).fit(subs.reshape(N*(W-K+1)*(W-K+1), K*K))
+        super(cBCM, self).fit(subs.reshape(N*(W-K+1)*(W-K+1), C*K*K))
 
     
 if __name__ == '__main__':
@@ -68,7 +72,7 @@ if __name__ == '__main__':
     # normalize the sample into [0, 1]
     X *= 1. / 255
 
-    model = cBCM(	n_filters = 8, kernel_size = 5,
+    model = cBCM(	out_channels = 8, kernel_size = 5,
 				    num_epochs= 10, batch_size = 1000, activation = 'relu',
 				    optimizer = SGD(lr=4e-2), weights_init = Normal(), interaction_strength = 0.,
 				    random_state = 42, verbose = True)
