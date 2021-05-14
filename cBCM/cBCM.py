@@ -15,10 +15,8 @@ class cBCM (BCM):
         self.out_channels = out_channels
         self.in_channels = in_channels
         self.kernel_size = kernel_size
-        
-        outputs = out_channels
 
-        super(cBCM, self).__init__(	outputs=outputs, num_epochs=num_epochs, 
+        super(cBCM, self).__init__(	outputs= out_channels, num_epochs=num_epochs, 
 									batch_size=batch_size, activation=activation,
                                		optimizer=optimizer,
                                		weights_init=weights_init,
@@ -27,16 +25,16 @@ class cBCM (BCM):
                                		random_state=random_state, verbose=verbose)
     
 
-    def fit(self, X, y = None):
-        
-        if y is not None:
-            X = self._join_input_label(X=X, y=y)
-            
-        
-        np.random.seed(self.random_state)
+    def fit(self, X):
 
         if len(X.shape)==3:
             X = np.expand_dims(X, axis = 1)
+
+        if X.shape[1] != self.in_channels:
+            raise ValueError("The input images do not have the expected number of channels!")
+                 
+        
+        np.random.seed(self.random_state)
         
         N,C,W,H= X.shape
         SN,SC,SW,SH = X.strides
@@ -57,12 +55,21 @@ class cBCM (BCM):
         
         super(cBCM, self).fit(subs.reshape(N*(W-K+1)*(W-K+1), C*K*K))
 
+
+    def get_weights():
+        return self.weights.reshape(self.out_channels, self.in_channels, self.kernel_size, self.kernel_size)
+
+
+
+
+
+
     
 if __name__ == '__main__':
 
     from plasticity.model.optimizer import SGD
     from plasticity.model.weights import Normal
-    from plasticity.utils import view_weights
+    from convicity.utils import view_weights
     from sklearn.datasets import fetch_openml
 
     #Download the MNIST dataset
