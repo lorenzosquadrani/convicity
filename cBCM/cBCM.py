@@ -24,7 +24,7 @@ class cBCM (BCM):
                                		precision=precision,
                                		random_state=random_state, verbose=verbose)
 
-    def _makes_slices(self, X):
+    def _make_slices(self, X):
 
         N,C,W,H= X.shape
         SN,SC,SW,SH = X.strides
@@ -42,7 +42,12 @@ class cBCM (BCM):
         # (SN, SW*stride1, SH*stride2,SW,SH)
         
         subs = np.lib.stride_tricks.as_strided(X, view_shape, strides=view_stride)
+
+        return subs
     
+    def get_weights(self):
+        return self.weights.reshape(self.out_channels, self.in_channels, self.kernel_size, self.kernel_size)
+
 
     def fit(self, X):
 
@@ -57,15 +62,23 @@ class cBCM (BCM):
 
         K, C = self.kernel_size, self.in_channels
 
-        subs = _makes_slices(X)
+        subs = self._make_slices(X)
         
         super(cBCM, self).fit(subs.reshape(-1, C*K*K))
  
 
 
-    def get_weights():
-        return self.weights.reshape(self.out_channels, self.in_channels, self.kernel_size, self.kernel_size)
+    def predict(self, X):
 
+        subs = self._make_slices(X)
+        weights = self.get_weights()
+
+        #The shape of the output should be (N, OUT_CHANNEL, W-K+1, H-K+1)
+        #The shape of weights is (OUT_CHANNEL, IN_CHANNEL, KERNEL_SIZE, KERNEL_SIZE)
+        #The shape of subs is (N, W-K+1, H-K+1, C, K , K)
+        out = np.einsum('asdjkl,hjkl -> ahsd', subs, weights, optimize = True)
+
+        return self.activation.activate(out)
 
 
 
