@@ -7,22 +7,13 @@ __email__ = ['lorenzo.squadrani@studio.unibo.it']
 
 class cBCM (BCM):
 
-    def __init__(self, in_channels, out_channels, kernel_size,
-                 num_epochs, batch_size, activation,
-                 optimizer, weights_init, interaction_strength=0.,
-                 precision=1e-30, random_state=42, verbose=False):
+    def __init__(self, in_channels, out_channels, kernel_size, **kwargs):
 
         self.out_channels = out_channels
         self.in_channels = in_channels
         self.kernel_size = kernel_size
 
-        super(cBCM, self).__init__(outputs=out_channels, num_epochs=num_epochs,
-                                   batch_size=batch_size, activation=activation,
-                                   optimizer=optimizer,
-                                   weights_init=weights_init,
-                                   interaction_strength=interaction_strength,
-                                   precision=precision,
-                                   random_state=random_state, verbose=verbose)
+        super(cBCM, self).__init__(outputs=out_channels, **kwargs)
 
     def _make_slices(self, X):
 
@@ -49,6 +40,17 @@ class cBCM (BCM):
         return self.weights.reshape(self.out_channels, self.kernel_size, self.kernel_size, self.in_channels)
 
     def fit(self, X):
+        '''
+        Train the cBCM model on a given dataset of images.
+
+        Parameters
+        ----------
+
+        X : numpy.array
+
+            The dataset should be an array of floats with shape (num_samples, width, height, channels)
+            or (num_samples, width, height).
+        '''
 
         if len(X.shape) == 3:
             X = np.expand_dims(X, axis=-1)
