@@ -62,8 +62,8 @@ class cBCM (BCM):
         np.random.seed(self.random_state)
 
         subs = self._make_slices(X)
-
-        super(cBCM, self).fit(subs.reshape(subs.shape[0], -1))
+        
+        super(cBCM, self).fit(subs.reshape(subs.shape[0]*subs.shape[1]*subs.shape[2], -1))
 
     def predict(self, X):
 
